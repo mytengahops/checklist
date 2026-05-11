@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tengah CCS Chiller Check List</title>
+  <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+  <style>
+    :root {
+      --sp-blue: #0066b3;
+      --sp-teal: #00a9ce;
+      --success: #28a745;
+      --danger: #dc3545;
+      --warning: #ffc107;
+      --gray: #6c757d;
+      --light-gray: #f8f9fa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 950px;
+      margin: 0 auto;
+      padding: 1rem;
+      background: #f0f4f8;
+      color: #333;
+      line-height: 1.6;
+    }
+    .form-container {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid var(--sp-blue);
+    }
+    .form-title {
+      color: var(--sp-blue);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: var(--light-gray);
+      border-radius: 6px;
+    }
+    .info-field { display: flex; flex-direction: column; }
+    .info-field label { font-weight: 600; font-size: 0.85rem; color: var(--sp-blue); margin-bottom: 0.3rem; }
+    .info-field input, .info-field textarea {
+      padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.9rem; font-family: inherit;
+    }
+    .info-field input:focus, .info-field textarea:focus {
+      outline: none; border-color: var(--sp-teal); box-shadow: 0 0 0 3px rgba(0,169,206,0.1);
+    }
+    .inspection-item {
+      background: white; border: 2px solid #e9ecef; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .item-header { margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid var(--sp-blue); }
+    .item-title { font-weight: 700; color: var(--sp-blue); font-size: 1.1rem; }
+    
+    .sub-item {
+      display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: start;
+      margin: 0.75rem 0; padding: 0.75rem; background: var(--light-gray); border-radius: 4px; border-left: 3px solid var(--sp-teal);
+    }
+    .sub-item-number { font-weight: 700; color: var(--sp-blue); min-width: 30px; }
+    .sub-item-content { font-size: 0.9rem; color: #333; line-height: 1.4; width: 100%; }
+    .value-inputs { display: flex; flex-direction: row; gap: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .value-inputs label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 500; }
+    .value-inputs input[type="text"] { width: 120px; padding: 0.35rem; border: 1px solid #ced4da; border-radius: 4px; }
+    .value-inputs input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--success); cursor: pointer; }
+    
+    .sub-item-actions {
+      display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-top: 0.75rem;
+      border-top: 1px dashed #ced4da; padding-top: 0.75rem;
+    }
+    .sub-remarks label { font-weight: 600; font-size: 0.8rem; color: var(--sp-blue); display: block; margin-bottom: 0.25rem; }
+    .sub-remarks textarea {
+      width: 100%; padding: 0.4rem 0.6rem; border: 1px solid #ced4da; border-radius: 4px;
+      font-family: inherit; font-size: 0.85rem; min-height: 45px; resize: vertical;
+    }
+    .sub-photo-section { background: #e9ecef; padding: 0.5rem; border-radius: 4px; }
+    .photo-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .photo-section-title { font-weight: 600; color: var(--sp-blue); font-size: 0.85rem; }
+    .btn-add-photo { background: var(--sp-teal); color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .btn-add-photo:hover { background: #0095b8; }
+    
+    .sub-photo-entry { background: white; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.5rem; margin-bottom: 0.5rem; position: relative; }
+    .btn-remove-photo { position: absolute; top: 0.25rem; right: 0.25rem; background: var(--danger); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+    .photo-upload-label { display: block; padding: 0.5rem; border: 2px dashed #ced4da; border-radius: 4px; text-align: center; cursor: pointer; background: #fafbfc; font-size: 0.8rem; }
+    .photo-upload-input { display: none; }
+    .photo-preview { margin-top: 0.25rem; display: none; text-align: center; }
+    .photo-preview img { max-width: 100%; max-height: 100px; border-radius: 4px; border: 1px solid #dee2e6; }
+    .photo-info { font-size: 0.75rem; color: var(--gray); margin-top: 0.2rem; }
+    .compressing { color: var(--warning); font-weight: 600; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+    
+    .additional-remarks { background: var(--light-gray); padding: 1.5rem; border-radius: 8px; margin: 2rem 0; }
+    .additional-remarks label { font-weight: 700; color: var(--sp-blue); display: block; margin-bottom: 0.5rem; }
+    .additional-remarks textarea { width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; font-size: 0.9rem; min-height: 80px; resize: vertical; }
+    .signature-section { margin: 2rem 0; padding-top: 2rem; border-top: 2px solid #dee2e6; }
+    .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .signature-field { display: flex; flex-direction: column; }
+    .signature-field label { font-weight: 700; color: var(--sp-blue); margin-bottom: 0.5rem; }
+    .signature-field input { padding: 0.75rem; border: 1px solid #ced4da; border-radius: 4px; font-size: 1rem; }
+    .signature-canvas-wrapper { position: relative; border: 2px solid #ced4da; border-radius: 6px; background: white; overflow: hidden; }
+    .signature-canvas { width: 100%; height: 120px; touch-action: none; cursor: crosshair; display: block; }
+    .signature-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+    .btn-clear-signature { background: var(--gray); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .signature-confirmation { display: none; margin-top: 0.5rem; padding: 0.5rem; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724; font-size: 0.85rem; font-weight: 600; }
+    .signature-confirmation.visible { display: block; }
+    .action-buttons { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; justify-content: center; }
+    .btn { padding: 1rem 2rem; border: none; border-radius: 50px; cursor: pointer; font-size: 1rem; font-weight: 700; background: var(--sp-blue); color: white; box-shadow: 0 4px 12px rgba(0,102,179,0.3); }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,102,179,0.4); }
+    
+    @media print {
+      body { background: white; }
+      .form-container { box-shadow: none; padding: 1rem; }
+      .btn, .btn-clear-signature, .signature-actions, .btn-add-photo, .photo-upload-label { display: none !important; }
+      .inspection-item, .sub-item, .sub-photo-entry { break-inside: avoid; }
+      .signature-canvas { border: 1px solid #000; }
+    }
+    @media (max-width: 768px) {
+      .form-container { padding: 1rem; }
+      .info-grid { grid-template-columns: 1fr; }
+      .sub-item { grid-template-columns: 1fr; }
+      .sub-item-actions { grid-template-columns: 1fr; }
+      .value-inputs { flex-direction: column; gap: 0.5rem; }
+      .signature-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .btn { width: 100%; min-width: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="header"><h1 class="form-title">Tengah CCS Chiller Check List</h1></div>
+    <div class="info-grid">
+      <div class="info-field"><label>Chiller Active Temp (°C)</label><input type="text" id="active-temp"></div>
+      <div class="info-field"><label>Chiller Temp Setpoint (°C)</label><input type="text" id="setpoint-temp"></div>
+      <div class="info-field"><label>Cluster / Blk</label><input type="text" id="cluster-blk"></div>
+      <div class="info-field"><label>Date / Time</label><input type="datetime-local" id="datetime"></div>
+    </div>
+
+    <div id="inspection-items">
+      <!-- EVAPORATOR SECTION -->
+      <div class="inspection-item" data-section="evaporator">
+        <div class="item-header"><div class="item-title">EVAPORATOR</div></div>
+        <div class="sub-item"><span class="sub-item-number">1.</span><div class="sub-item-content">Chilled Water Return Temperature (°C)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">2.</span><div class="sub-item-content">Chilled Water Return Pressure (Bar)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">3.</span><div class="sub-item-content">Chilled Water Leaving Temperature (°C)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">4.</span><div class="sub-item-content">Chilled Water Leaving Pressure (Bar)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.</span><div class="sub-item-content">Evap Approach Temp (°C)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">6.</span><div class="sub-item-content">Evap Pressure (Kpa)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">7.</span><div class="sub-item-content">Suction Temp (°C)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">8.</span><div class="sub-item-content">Suction Superheat (°C)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+      </div>
+
+      <!-- CONDENSER SECTION -->
+      <div class="inspection-item" data-section="condenser">
+        <div class="item-header"><div class="item-title">CONDENSER</div></div>
+        <div class="sub-item"><span class="sub-item-number">1.</span><div class="sub-item-content">Cond Water Return Temp (°C)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">2.</span><div class="sub-item-content">Cond Water Return Pressure (Bar)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">3.</span><div class="sub-item-content">Cond Water Leaving Temp (°C)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">4.</span><div class="sub-item-content">Cond Water Leaving Pressure (Bar)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.</span><div class="sub-item-content">Cond Approach Temp (°C)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">6.</span><div class="sub-item-content">Discharge Pressure (Kpa): To Convert to PSI<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">7.</span><div class="sub-item-content">Discharge Temp (°C)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">8.</span><div class="sub-item-content">Discharge Superheat (°C)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+      </div>
+
+      <!-- COMPRESSOR SECTION -->
+      <div class="inspection-item" data-section="compressor">
+        <div class="item-header"><div class="item-title">COMPRESSOR</div></div>
+        <div class="sub-item"><span class="sub-item-number">1.</span><div class="sub-item-content">Hours<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">2.</span><div class="sub-item-content">Starts<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">3.</span><div class="sub-item-content">State<div class="value-inputs"><label>Comp 1 : <input type="checkbox"> ON</label><label>Comp 2 : <input type="checkbox"> ON</label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">4.</span><div class="sub-item-content">RLA (%)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.</span><div class="sub-item-content">Current (A)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">6.</span><div class="sub-item-content">Voltage (V)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">7.</span><div class="sub-item-content">Power (kW)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">8.</span><div class="sub-item-content">IGV (%)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">9.</span><div class="sub-item-content">Max RPM<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">10.</span><div class="sub-item-content">Act RPM<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">11.</span><div class="sub-item-content">Min RPM<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">12.</span><div class="sub-item-content">EXV (%)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">13.</span><div class="sub-item-content">Econ Press (Kpa)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">14.</span><div class="sub-item-content">Liquid Level (%)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+        <div class="sub-item"><span class="sub-item-number">15.</span><div class="sub-item-content">Econ Temp (°C)<div class="value-inputs"><label>Comp 1 : <input type="text"></label><label>Comp 2 : <input type="text"></label></div><div class="sub-item-actions"><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div><div class="sub-photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos</span><button type="button" class="btn-add-photo" onclick="addSubPhoto(this)">+ Add Photo</button></div><div class="sub-photo-container"></div></div></div></div></div>
+      </div>
+    </div>
+
+    <div class="additional-remarks">
+      <label for="additional-remarks">Additional Remarks (If any):</label>
+      <textarea id="additional-remarks" placeholder="Enter any additional observations or notes..."></textarea>
+    </div>
+
+    <div class="signature-section">
+      <div class="signature-grid">
+        <div class="signature-field">
+          <label>Recorded By:</label>
+          <input type="text" id="recorded-by" placeholder="Full Name">
+          <div class="signature-canvas-wrapper" style="margin-top:0.5rem;"><canvas id="signature-canvas-1" class="signature-canvas"></canvas></div>
+          <div class="signature-actions"><button type="button" class="btn-clear-signature" onclick="clearSignature(1)">🗑️ Clear</button></div>
+          <div id="signature-confirmation-1" class="signature-confirmation">✅ Captured</div>
+        </div>
+        <div class="signature-field">
+          <label>Reviewed By:</label>
+          <input type="text" id="reviewed-by" placeholder="Full Name">
+          <div class="signature-canvas-wrapper" style="margin-top:0.5rem;"><canvas id="signature-canvas-2" class="signature-canvas"></canvas></div>
+          <div class="signature-actions"><button type="button" class="btn-clear-signature" onclick="clearSignature(2)">🗑️ Clear</button></div>
+          <div id="signature-confirmation-2" class="signature-confirmation">✅ Captured</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button type="button" class="btn" onclick="window.print()">🖨️ Print to PDF</button>
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    document.getElementById('datetime').value = new Date().toISOString().slice(0, 16);
+    
+    function addSubPhoto(btn) {
+      const container = btn.closest('.sub-item').querySelector('.sub-photo-container');
+      const photoEntry = document.createElement('div');
+      photoEntry.className = 'sub-photo-entry';
+      photoEntry.innerHTML = `
+        <button type="button" class="btn-remove-photo" onclick="this.parentElement.remove()">×</button>
+        <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.75rem">Click to upload</div></label>
+        <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>`;
+      container.appendChild(photoEntry);
+    }
+
+    async function handlePhotoUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const photoEntry = input.closest('.sub-photo-entry');
+      const preview = photoEntry.querySelector('.photo-preview');
+      const previewImg = preview.querySelector('img');
+      const photoInfo = preview.querySelector('.photo-info');
+      photoInfo.className = 'photo-info compressing';
+      photoInfo.textContent = '🔄 Compressing...';
+      preview.style.display = 'block';
+      try {
+        if (file.type.startsWith('image/')) {
+          const compressed = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1200, useWebWorker: true, initialQuality: 0.85 });
+          const reader = new FileReader();
+          reader.onload = (ev) => { previewImg.src = ev.target.result; photoInfo.className = 'photo-info'; photoInfo.textContent = `✅ ${(compressed.size/1024).toFixed(1)} KB`; };
+          reader.readAsDataURL(compressed);
+        }
+      } catch (err) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { previewImg.src = ev.target.result; photoInfo.className = 'photo-info'; photoInfo.textContent = `⚠️ ${(file.size/1024).toFixed(1)} KB`; };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    const signaturePads = {};
+    function initSignaturePad(id) {
+      const canvas = document.getElementById(`signature-canvas-${id}`);
+      if (canvas && typeof SignaturePad !== 'undefined') {
+        signaturePads[id] = new SignaturePad(canvas, { minWidth: 0.5, maxWidth: 2.5, penColor: '#000000', backgroundColor: 'rgba(255, 255, 255, 0)' });
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext('2d').scale(ratio, ratio);
+        canvas.getContext('2d').lineCap = 'round';
+        canvas.getContext('2d').lineJoin = 'round';
+        signaturePads[id].onEnd = function() { if (!signaturePads[id].isEmpty()) document.getElementById(`signature-confirmation-${id}`).classList.add('visible'); };
+      }
+    }
+
+    function clearSignature(id) { 
+      if (signaturePads[id]) { signaturePads[id].clear(); document.getElementById(`signature-confirmation-${id}`).classList.remove('visible'); } 
+    }
+
+    window.addEventListener('load', () => { 
+      setTimeout(() => initSignaturePad(1), 100); 
+      setTimeout(() => initSignaturePad(2), 100); 
+    });
+    
+    window.addEventListener('resize', () => {
+      for (let id in signaturePads) {
+        const canvas = document.getElementById(`signature-canvas-${id}`);
+        if (canvas && signaturePads[id]) {
+          const data = signaturePads[id].toData();
+          const ratio = Math.max(window.devicePixelRatio || 1, 1);
+          canvas.width = canvas.offsetWidth * ratio;
+          canvas.height = canvas.offsetHeight * ratio;
+          canvas.getContext('2d').scale(ratio, ratio);
+          signaturePads[id].fromData(data);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
