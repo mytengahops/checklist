@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CT Basin Cleaning Report</title>
+  <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+  <style>
+    :root {
+      --sp-blue: #0066b3;
+      --sp-teal: #00a9ce;
+      --success: #28a745;
+      --danger: #dc3545;
+      --warning: #ffc107;
+      --gray: #6c757d;
+      --light-gray: #f8f9fa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 950px;
+      margin: 0 auto;
+      padding: 1rem;
+      background: #f0f4f8;
+      color: #333;
+      line-height: 1.6;
+    }
+    .form-container {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid var(--sp-blue);
+    }
+    .form-title {
+      color: var(--sp-blue);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: var(--light-gray);
+      border-radius: 6px;
+    }
+    .info-field { display: flex; flex-direction: column; }
+    .info-field label { font-weight: 600; font-size: 0.85rem; color: var(--sp-blue); margin-bottom: 0.3rem; }
+    .info-field input, .info-field select, .info-field textarea {
+      padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.9rem; font-family: inherit;
+    }
+    .info-field input:focus, .info-field select:focus, .info-field textarea:focus {
+      outline: none; border-color: var(--sp-teal); box-shadow: 0 0 0 3px rgba(0,169,206,0.1);
+    }
+    .inspection-item {
+      background: white; border: 2px solid #e9ecef; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .item-header { margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid var(--sp-blue); }
+    .item-title { font-weight: 700; color: var(--sp-blue); font-size: 1.1rem; }
+    .sub-item {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 0.75rem; align-items: start;
+      margin: 0.75rem 0; padding: 0.75rem; background: var(--light-gray); border-radius: 4px; border-left: 3px solid var(--sp-teal);
+    }
+    .sub-item.warning { background: #fff3cd; border-left-color: var(--warning); }
+    .sub-item-number { font-weight: 700; color: var(--sp-blue); min-width: 35px; white-space: nowrap; }
+    .sub-item-content { font-size: 0.9rem; color: #333; line-height: 1.4; }
+    .sub-item-content small { display: block; color: var(--gray); font-size: 0.8rem; margin-top: 0.25rem; }
+    .status-checkbox { display: flex; align-items: center; justify-content: center; padding-top: 4px; }
+    .status-checkbox input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--success); cursor: pointer; }
+    .sub-remarks { grid-column: 2 / -1; margin-top: 0.5rem; padding-left: 25px; }
+    .sub-remarks label { font-weight: 600; font-size: 0.8rem; color: var(--sp-blue); display: block; margin-bottom: 0.25rem; }
+    .sub-remarks textarea {
+      width: 100%; padding: 0.4rem 0.6rem; border: 1px solid #ced4da; border-radius: 4px;
+      font-family: inherit; font-size: 0.85rem; min-height: 45px; resize: vertical;
+    }
+    .field-group { display: flex; flex-direction: column; margin: 1rem 0; padding-top: 0.75rem; border-top: 1px dashed #dee2e6; }
+    .field-group label { font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem; color: #495057; }
+    .field-group textarea {
+      padding: 0.6rem; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit;
+      font-size: 0.9rem; resize: vertical; min-height: 60px;
+    }
+    .photo-section { background: var(--light-gray); border-radius: 6px; padding: 1rem; margin-top: 1rem; }
+    .photo-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+    .photo-section-title { font-weight: 600; color: var(--sp-blue); font-size: 0.9rem; }
+    .btn-add-photo { background: var(--sp-teal); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
+    .btn-add-photo:hover { background: #0095b8; }
+    
+    /* Photo Documentation Section */
+    .photo-doc-section {
+      background: white;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .photo-block {
+      border: 1px dashed #ced4da;
+      padding: 0.75rem;
+      border-radius: 4px;
+      background: #fafbfc;
+    }
+    .photo-block-title {
+      font-weight: 600;
+      color: var(--sp-blue);
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .photo-upload-wrapper { margin-bottom: 0.5rem; }
+    .photo-upload-label { display: block; padding: 0.75rem; border: 2px dashed #ced4da; border-radius: 6px; text-align: center; cursor: pointer; background: white; transition: all 0.3s; }
+    .photo-upload-label:hover { border-color: var(--sp-teal); background: #e7f3f8; }
+    .photo-upload-input { display: none; }
+    .photo-preview { margin-top: 0.5rem; display: none; text-align: center; }
+    .photo-preview img { max-width: 100%; max-height: 150px; border-radius: 4px; border: 1px solid #dee2e6; }
+    .photo-info { font-size: 0.8rem; color: var(--gray); margin-top: 0.25rem; }
+    .compressing { color: var(--warning); font-weight: 600; animation: pulse 1.5s infinite; }
+    
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+    
+    .additional-remarks { background: var(--light-gray); padding: 1.5rem; border-radius: 8px; margin: 2rem 0; }
+    .additional-remarks label { font-weight: 700; color: var(--sp-blue); display: block; margin-bottom: 0.5rem; }
+    .additional-remarks textarea { width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 4px; font-family: inherit; font-size: 0.9rem; min-height: 80px; resize: vertical; }
+    .signature-section { margin: 2rem 0; padding-top: 2rem; border-top: 2px solid #dee2e6; }
+    .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .signature-field { display: flex; flex-direction: column; }
+    .signature-field label { font-weight: 700; color: var(--sp-blue); margin-bottom: 0.5rem; }
+    .signature-field input { padding: 0.75rem; border: 1px solid #ced4da; border-radius: 4px; font-size: 1rem; }
+    .signature-canvas-wrapper { position: relative; border: 2px solid #ced4da; border-radius: 6px; background: white; overflow: hidden; }
+    .signature-canvas { width: 100%; height: 150px; touch-action: none; cursor: crosshair; display: block; }
+    .signature-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+    .btn-clear-signature { background: var(--gray); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .signature-confirmation { display: none; margin-top: 0.5rem; padding: 0.5rem; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724; font-size: 0.85rem; font-weight: 600; }
+    .signature-confirmation.visible { display: block; }
+    .action-buttons { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; justify-content: center; }
+    .btn { padding: 1rem 2rem; border: none; border-radius: 50px; cursor: pointer; font-size: 1rem; font-weight: 700; background: var(--sp-blue); color: white; box-shadow: 0 4px 12px rgba(0,102,179,0.3); }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,102,179,0.4); }
+    
+    .btn-remove-photo { position: absolute; top: 0.5rem; right: 0.5rem; background: var(--danger); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    
+    @media print {
+      body { background: white; }
+      .form-container { box-shadow: none; padding: 1rem; }
+      .btn, .photo-upload-label, .btn-add-photo, .btn-remove-photo, .signature-actions { display: none !important; }
+      .inspection-item, .photo-entry, .photo-block { break-inside: avoid; }
+    }
+    @media (max-width: 768px) {
+      .form-container { padding: 1rem; }
+      .info-grid { grid-template-columns: 1fr; }
+      .sub-item { grid-template-columns: 1fr; }
+      .status-checkbox { justify-content: flex-start; }
+      .sub-remarks { padding-left: 0; }
+      .signature-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .btn { width: 100%; min-width: auto; }
+      .photo-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="header"><h1 class="form-title">CT Basin Cleaning Report</h1></div>
+    <div class="info-grid">
+      <div class="info-field"><label>Report No.</label><input type="text" id="report-no" placeholder="Enter report number"></div>
+      <div class="info-field"><label>Date</label><input type="date" id="date"></div>
+      <div class="info-field"><label>Time</label><input type="time" id="time"></div>
+      <div class="info-field"><label>District / Precinct</label><input type="text" id="district" placeholder="Enter district"></div>
+      <div class="info-field"><label>CCS BLK</label><input type="text" id="ccs-blk" placeholder="Enter CCS block"></div>
+      <div class="info-field"><label>Done by</label><input type="text" id="done-by" placeholder="Enter name"></div>
+    </div>
+
+    <div id="inspection-items">
+      <!-- Item 1 -->
+      <div class="inspection-item" data-item="1">
+        <div class="item-header"><div class="item-title">1. Pre-Checks for Cooling Tower Basin Cleaning</div></div>
+        <div class="sub-item"><span class="sub-item-number">1.1.</span><div class="sub-item-content">Apply for PTW.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">1.2.</span><div class="sub-item-content">CCS Plant OOS.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">1.3.</span><div class="sub-item-content">Toolbox Meeting:</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">1.4.</span><div class="sub-item-content">1) Ensure workers are equipped with the proper PPE.<br>2) Ensure all electrical equipment are in good working condition and is adequately covered and not exposed.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="field-group"><label>Overall Remarks:</label><textarea id="remarks-1" placeholder="Enter overall observations..."></textarea></div>
+        <div class="photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos & Comments</span><button type="button" class="btn-add-photo" onclick="addPhoto(1)">+ Add Photo</button></div><div id="photos-1"></div></div>
+      </div>
+
+      <!-- Item 2 -->
+      <div class="inspection-item" data-item="2">
+        <div class="item-header"><div class="item-title">2. Checks for Cooling Tower Basin Cleaning</div></div>
+        <div class="sub-item"><span class="sub-item-number">2.1.</span><div class="sub-item-content">Localised CT and Turn OFF at EC-CT display.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">2.2.</span><div class="sub-item-content">Put XV-050 to LOCAL mode and CLOSE position.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">2.3.</span><div class="sub-item-content">Record CDMT pH & Conductivity value.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">2.4.</span><div class="sub-item-content">Inspect & clean CT infill and sound mesh.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">2.5.</span><div class="sub-item-content">Inspect CT basin gate valves.<br><small>(Top-up: GT-050, Drain: GT-250, Overflow: GT-250)</small></div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">2.6.</span><div class="sub-item-content">Inspect & clean CT basin level-switch (LS-250).</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">2.7.</span><div class="sub-item-content">Inspect & clean WCDP Flow sensor.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="field-group"><label>Overall Remarks:</label><textarea id="remarks-2" placeholder="Enter overall observations..."></textarea></div>
+        <div class="photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos & Comments</span><button type="button" class="btn-add-photo" onclick="addPhoto(2)">+ Add Photo</button></div><div id="photos-2"></div></div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="inspection-item" data-item="3">
+        <div class="item-header"><div class="item-title">3. Strainer Cleaning (If Applicable)</div></div>
+        <div class="sub-item"><span class="sub-item-number">3.1.</span><div class="sub-item-content">Isolate strainer by manually closing BT-220-1 & BT-220-4.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">3.2.</span><div class="sub-item-content">Inspect / Clean strainer.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">3.3.</span><div class="sub-item-content">Inspect pump sound enclosure. (6.3m container)</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">3.4.</span><div class="sub-item-content">Inspect / Install Purging Points.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">3.5.</span><div class="sub-item-content">Normalise strainer BT-220-1 & BT-220-4.<br><small>(Ensure in FULLY OPEN position)</small></div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">3.6.</span><div class="sub-item-content">Inspect / Clean PWMUP strainer.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="field-group"><label>Overall Remarks:</label><textarea id="remarks-3" placeholder="Enter overall observations..."></textarea></div>
+        <div class="photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos & Comments</span><button type="button" class="btn-add-photo" onclick="addPhoto(3)">+ Add Photo</button></div><div id="photos-3"></div></div>
+      </div>
+
+      <!-- Item 4 -->
+      <div class="inspection-item" data-item="4">
+        <div class="item-header"><div class="item-title">4. E-Stop Signal Test for Pumps & Fans</div></div>
+        <div class="sub-item warning" style="grid-column: 1 / -1;">
+          <div class="sub-item-content"><strong>Note:</strong> Coordinate with Control Room before starting this work. Ensure pumps & fans are not running before starting this testing. Release E-Stop button and reset alarms at SCADA and VSD Panels upon completion of testing.</div>
+        </div>
+        <div class="sub-item"><span class="sub-item-number">4.1.</span><div class="sub-item-content">CT Fans: E-Stop Button at EC-CT Panel.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">4.2.</span><div class="sub-item-content">WCP: E-Stop Button at WC-MCC Panel.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">4.3.</span><div class="sub-item-content">WCDP: E-Stop Button at WC-MCC Panel.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">4.4.</span><div class="sub-item-content">PWMUP: E-Stop located near pump.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="field-group"><label>Overall Remarks:</label><textarea id="remarks-4" placeholder="Enter overall observations..."></textarea></div>
+        <div class="photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos & Comments</span><button type="button" class="btn-add-photo" onclick="addPhoto(4)">+ Add Photo</button></div><div id="photos-4"></div></div>
+      </div>
+
+      <!-- Item 5 -->
+      <div class="inspection-item" data-item="5">
+        <div class="item-header"><div class="item-title">5. Normalization of Cooling Tower Basin</div></div>
+        <div class="sub-item"><span class="sub-item-number">5.1.</span><div class="sub-item-content">Verify all 3 CT basin cleaned.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.2.</span><div class="sub-item-content">Verify CT basin valves to initial positions.<br><small>drain gate valve: GT-250 FULLY CLOSED<br>top-up gate valve: GT-050 FULLY OPENED<br>overflow gate valve: GT-250 FULLY OPENED</small></div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.3.</span><div class="sub-item-content">Verify CT basin top-up motorised valve (XV-050) set to REMOTE.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.4.</span><div class="sub-item-content">Manually test CT basin level-switch (LS-250) high- & low-level sensors:<br><small>Low-level: PWMUP CUT IN<br>High-level: PWMUP CUT OUT</small></div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.5.</span><div class="sub-item-content">Verify CT basin level switch (LS-250) install according to marking on housing.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.6.</span><div class="sub-item-content">Verify CT basin level switch (LS-250) manual valve at FULLY OPENED position.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.7.</span><div class="sub-item-content">Test run WCDP on LOCAL mode via VSD.<br><small>purge access air inside system & verify no anomaly<br>condenser flowrate >= 165 m3/h @ 38Hz</small></div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.8.</span><div class="sub-item-content">Pumps inspection. (WCP & WCDP)<br><small>check for abnormal sound, pump functionality, physical condition (mounting bolts, nuts, insulation)</small></div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.9.</span><div class="sub-item-content">Record CDMT pH & Conductivity value.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.10.</span><div class="sub-item-content">Verify all 3 CT basin water level balanced.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.11.</span><div class="sub-item-content">Install CT infill and sound mesh.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">5.12.</span><div class="sub-item-content">House Keeping.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="field-group"><label>Overall Remarks:</label><textarea id="remarks-5" placeholder="Enter overall observations..."></textarea></div>
+        <div class="photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos & Comments</span><button type="button" class="btn-add-photo" onclick="addPhoto(5)">+ Add Photo</button></div><div id="photos-5"></div></div>
+      </div>
+
+      <!-- Item 6 -->
+      <div class="inspection-item" data-item="6">
+        <div class="item-header"><div class="item-title">6. Post-Checks for Cooling Tower Basin Cleaning</div></div>
+        <div class="sub-item"><span class="sub-item-number">6.1.</span><div class="sub-item-content">Verify all equipment set to REMOTE.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">6.2.</span><div class="sub-item-content">Inform Control Room to remove OOS.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="sub-item"><span class="sub-item-number">6.3.</span><div class="sub-item-content">Signed OFF & close PTW.</div><div class="status-checkbox"><input type="checkbox"></div><div class="sub-remarks"><label>Remarks:</label><textarea placeholder="Enter remarks..."></textarea></div></div>
+        <div class="field-group"><label>Overall Remarks:</label><textarea id="remarks-6" placeholder="Enter overall observations..."></textarea></div>
+        <div class="photo-section"><div class="photo-section-header"><span class="photo-section-title">Photos & Comments</span><button type="button" class="btn-add-photo" onclick="addPhoto(6)">+ Add Photo</button></div><div id="photos-6"></div></div>
+      </div>
+    </div>
+
+    <!-- Photo Documentation Section -->
+    <div class="photo-doc-section">
+      <div class="item-header"><div class="item-title">Photo Documentation</div></div>
+      
+      <div class="photo-grid">
+        <div class="photo-block">
+          <div class="photo-block-title">CT Basin Condition - Before</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+        <div class="photo-block">
+          <div class="photo-block-title">CT Basin Condition - After</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+      </div>
+
+      <div class="photo-grid">
+        <div class="photo-block">
+          <div class="photo-block-title">pH & Conductivity Reading - Before</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+        <div class="photo-block">
+          <div class="photo-block-title">pH & Conductivity Reading - After</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+      </div>
+
+      <div class="photo-grid">
+        <div class="photo-block">
+          <div class="photo-block-title">CT Level Switch LS-250 - Before</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+        <div class="photo-block">
+          <div class="photo-block-title">CT Level Switch LS-250 - After</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+      </div>
+
+      <div class="photo-grid">
+        <div class="photo-block">
+          <div class="photo-block-title">WCDP Flow Sensor - Before</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+        <div class="photo-block">
+          <div class="photo-block-title">WCDP Flow Sensor - After</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+      </div>
+
+      <div class="photo-grid">
+        <div class="photo-block">
+          <div class="photo-block-title">WCDP Flow Sensor LED</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+        <div class="photo-block">
+          <div class="photo-block-title">WCDP Flowmeter Reading</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+      </div>
+
+      <div class="photo-grid">
+        <div class="photo-block">
+          <div class="photo-block-title">Housekeeping - Chiller Area</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+        <div class="photo-block">
+          <div class="photo-block-title">Housekeeping - CT Area</div>
+          <div class="photo-upload-wrapper">
+            <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload</div></label>
+          </div>
+          <div class="photo-preview"><img src="" alt="Preview"><div class="photo-info"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="additional-remarks">
+      <label for="additional-remarks">Additional Remarks (If any):</label>
+      <textarea id="additional-remarks" placeholder="Enter any additional observations or notes..."></textarea>
+    </div>
+
+    <div class="signature-section">
+      <div class="signature-grid">
+        <div class="signature-field"><label>Reported by:</label><input type="text" id="reported-by" placeholder="Full Name"></div>
+        <div class="signature-field">
+          <label>Digital Signature:</label>
+          <div class="signature-canvas-wrapper"><canvas id="signature-canvas" class="signature-canvas"></canvas></div>
+          <div class="signature-actions"><button type="button" class="btn-clear-signature" onclick="clearSignature()">🗑️ Clear Signature</button></div>
+          <div id="signature-confirmation" class="signature-confirmation">✅ Signature captured successfully</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button type="button" class="btn" onclick="window.print()">🖨️ Print to PDF</button>
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('time').value = new Date().toTimeString().slice(0, 5);
+    const photoCounters = {1:0,2:0,3:0,4:0,5:0,6:0};
+    
+    function addPhoto(itemNum) {
+      photoCounters[itemNum]++;
+      const container = document.getElementById(`photos-${itemNum}`);
+      const photoEntry = document.createElement('div');
+      photoEntry.className = 'photo-entry';
+      photoEntry.innerHTML = `
+        <button type="button" class="btn-remove-photo" onclick="this.parentElement.remove()">×</button>
+        <div class="photo-upload-wrapper">
+          <label class="photo-upload-label"><input type="file" class="photo-upload-input" accept="image/*" onchange="handlePhotoUpload(this)"><div>📷</div><div style="color:#6c757d;font-size:0.8rem">Click to upload photo</div></label>
+        </div>
+        <div class="photo-preview"><img src="" alt="Photo preview"><div class="photo-info"></div></div>
+        <div class="photo-comment"><label>Photo Comment:</label><textarea class="photo-comment-input" placeholder="Describe this photo..." rows="2"></textarea></div>`;
+      container.appendChild(photoEntry);
+    }
+
+    async function handlePhotoUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const photoEntry = input.closest('.photo-entry') || input.closest('.photo-block');
+      const preview = photoEntry.querySelector('.photo-preview');
+      const previewImg = preview.querySelector('img');
+      const photoInfo = preview.querySelector('.photo-info');
+      photoInfo.className = 'photo-info compressing';
+      photoInfo.textContent = '🔄 Compressing...';
+      preview.style.display = 'block';
+      try {
+        if (file.type.startsWith('image/')) {
+          const compressed = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1200, useWebWorker: true, initialQuality: 0.85 });
+          const reader = new FileReader();
+          reader.onload = (ev) => { previewImg.src = ev.target.result; photoInfo.className = 'photo-info'; photoInfo.textContent = `✅ ${compressed.name} (${(compressed.size/1024).toFixed(1)} KB)`; };
+          reader.readAsDataURL(compressed);
+        }
+      } catch (err) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { previewImg.src = ev.target.result; photoInfo.className = 'photo-info'; photoInfo.textContent = `⚠️ ${file.name} (${(file.size/1024).toFixed(1)} KB)`; };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    const signatureCanvas = document.getElementById('signature-canvas');
+    let signaturePad;
+    function initSignaturePad() {
+      if (typeof SignaturePad !== 'undefined') {
+        signaturePad = new SignaturePad(signatureCanvas, { minWidth: 0.5, maxWidth: 2.5, penColor: '#000000', backgroundColor: 'rgba(255, 255, 255, 0)' });
+        resizeCanvas();
+        signaturePad.onEnd = function() { if (!signaturePad.isEmpty()) document.getElementById('signature-confirmation').classList.add('visible'); };
+      }
+    }
+    function resizeCanvas() {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      signatureCanvas.width = signatureCanvas.offsetWidth * ratio;
+      signatureCanvas.height = signatureCanvas.offsetHeight * ratio;
+      signatureCanvas.getContext('2d').scale(ratio, ratio);
+      signatureCanvas.getContext('2d').lineCap = 'round';
+      signatureCanvas.getContext('2d').lineJoin = 'round';
+    }
+    function clearSignature() { if (signaturePad) { signaturePad.clear(); document.getElementById('signature-confirmation').classList.remove('visible'); } }
+    window.addEventListener('load', () => setTimeout(initSignaturePad, 100));
+    window.addEventListener('resize', () => { if (signaturePad) { const data = signaturePad.toData(); resizeCanvas(); signaturePad.fromData(data); } });
+  </script>
+</body>
+</html>
+
